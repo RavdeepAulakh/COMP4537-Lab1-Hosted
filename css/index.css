@@ -1,0 +1,36 @@
+body {
+    font-family: Arial, sans-serif;
+}
+#notes-container {
+    max-width: 600px;
+    margin: 20px auto;
+}
+textarea {
+    width: 100%;
+    margin-bottom: 10px;
+}
+.remove-btn {
+    cursor: pointer;
+    color: red;
+    margin-left: 5px;
+}
+#last-save-time {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    font-size: 12px;
+}
+
+#retrieved-time {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    font-size: 12px;
+}
+
+#back-button {
+    position: fixed;
+
+    left: 10px;
+    bottom: 10px;
+}
