@@ -1,5 +1,3 @@
-const LAST_RETRIEVED_PREFIX = 'Last retrieved: ';
-
 class Note {
     constructor(content) {
         this.content = content || '';

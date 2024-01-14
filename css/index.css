@@ -6,8 +6,9 @@ body {
     margin: 20px auto;
 }
 textarea {
-    width: 100%;
+    width: calc(100% - 25px);
     margin-bottom: 10px;
+    display: inline-block; 
 }
 .remove-btn {
     cursor: pointer;

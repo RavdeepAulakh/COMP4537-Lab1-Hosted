@@ -1,83 +1,90 @@
-const LAST_SAVED_PREFIX = 'Last saved: ';
+class Note {
+    constructor(content, index, updateCallback, removeCallback) {
+        this.content = content || '';
+        this.index = index;
+        this.updateCallback = updateCallback;
+        this.removeCallback = removeCallback;
+    }
 
-function Note(content, index, updateCallback, removeCallback) {
-    this.content = content || '';
-    this.index = index;
-    this.updateCallback = updateCallback;
-    this.removeCallback = removeCallback;
+    createNoteElement() {
+        const noteDiv = document.createElement('div');
 
-    this.createNoteElement = function () {
         const textarea = document.createElement('textarea');
         textarea.value = this.content;
         textarea.addEventListener('input', () => this.updateContent(textarea.value));
+        textarea.style.width = 'calc(80% - 5px)'; // Adjust the width of the textarea
 
         const removeBtn = document.createElement('span');
         removeBtn.className = 'remove-btn';
         removeBtn.innerText = 'Remove';
         removeBtn.addEventListener('click', () => this.remove());
+        removeBtn.style.width = '20%'; // Adjust the width of the remove button
 
-        const noteDiv = document.createElement('div');
         noteDiv.appendChild(textarea);
         noteDiv.appendChild(removeBtn);
 
         return noteDiv;
-    };
+    }
 
-    this.updateContent = function (content) {
+    updateContent(content) {
         this.content = content;
         this.updateCallback(this.index, content);
-    };
+    }
 
-    this.remove = function () {
+    remove() {
         this.removeCallback(this.index);
-    };
+    }
 }
 
-let notes = JSON.parse(localStorage.getItem('notes')) || [];
+class NoteManager {
+    constructor() {
+        this.notes = JSON.parse(localStorage.getItem('notes')) || [];
+    }
 
-function updateNotes() {
-    const notesContainer = document.getElementById('notes-container');
-    notesContainer.innerHTML = '';
+    updateNotes() {
+        const notesContainer = document.getElementById('notes-container');
+        notesContainer.innerHTML = '';
 
-    notes.forEach((note, index) => {
-        const noteObj = new Note(note.content, index, updateNoteContent, removeNote);
-        const noteElement = noteObj.createNoteElement();
-        notesContainer.appendChild(noteElement);
-    });
+        this.notes.forEach((note, index) => {
+            const noteObj = new Note(note.content, index, this.updateNoteContent.bind(this), this.removeNote.bind(this));
+            const noteElement = noteObj.createNoteElement();
+            notesContainer.appendChild(noteElement);
+        });
 
-    updateLastSaveTime();
+        this.updateLastSaveTime();
+    }
+
+    addNote() {
+        this.notes.push(new Note());
+        this.updateNotes();
+        this.saveNotesToLocalStorage();
+    }
+
+    removeNote(index) {
+        this.notes.splice(index, 1);
+        this.updateNotes();
+        this.saveNotesToLocalStorage();
+    }
+
+    updateNoteContent(index, content) {
+        this.notes[index].content = content;
+        this.saveNotesToLocalStorage();
+    }
+
+    saveNotesToLocalStorage() {
+        localStorage.setItem('notes', JSON.stringify(this.notes));
+        this.updateLastSaveTime();
+    }
+
+    updateLastSaveTime() {
+        const lastSaveTimeElement = document.getElementById('last-save-time');
+        const currentDate = new Date();
+        const formattedTime = currentDate.toLocaleTimeString();
+        lastSaveTimeElement.innerText = LAST_SAVED_PREFIX + formattedTime;
+    }
 }
 
-function addNote() {
-    notes.push(new Note());
-    updateNotes();
-    saveNotesToLocalStorage();
-}
+const noteManager = new NoteManager();
+noteManager.updateNotes();
 
-function removeNote(index) {
-    notes.splice(index, 1);
-    updateNotes();
-    saveNotesToLocalStorage();
-}
-
-function updateNoteContent(index, content) {
-    notes[index].content = content;
-    saveNotesToLocalStorage();
-}
-
-function saveNotesToLocalStorage() {
-    localStorage.setItem('notes', JSON.stringify(notes));
-    updateLastSaveTime();
-}
-
-function updateLastSaveTime() {
-    const lastSaveTimeElement = document.getElementById('last-save-time');
-    const currentDate = new Date();
-    const formattedTime = currentDate.toLocaleTimeString();
-    lastSaveTimeElement.innerText = LAST_SAVED_PREFIX + formattedTime;
-}
-
-updateNotes();
-
-setInterval(saveNotesToLocalStorage, 2000);
-
+setInterval(() => noteManager.saveNotesToLocalStorage(), 2000);
